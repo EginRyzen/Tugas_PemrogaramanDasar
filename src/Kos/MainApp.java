@@ -104,6 +104,13 @@ public class MainApp {
 
         }
 
+        /**
+         * Menampilkan menu utama ke pengguna. Menu ini berisi header, daftar
+         * menu, dan footer yang meminta pengguna untuk memilih menu yang
+         * diinginkan.
+         * 
+         * @param kotaTerpilih nama kota yang sedang dipilih pengguna
+         */
         public static void tampilkanMenuUtama(String kotaTerpilih) {
                 System.out.println("\n╔════════════════════════════════════════════════╗");
                 System.out.printf("       ★ Menu Utama - Kota: %s ★          \n", kotaTerpilih);
@@ -127,6 +134,13 @@ public class MainApp {
 
         }
 
+        /**
+         * Menampilkan daftar kos yang tersedia di kota yang dipilih oleh
+         * pengguna. Jika belum ada kos yang tersedia, maka akan ditampilkan
+         * pesan bahwa belum ada kos yang tersedia di kota tersebut.
+         * 
+         * @param kotaTerpilih Nama kota yang dipilih oleh pengguna
+         */
         public static void tampilkanDaftarKos(String kotaTerpilih) {
                 List<Kos> daftarKos = daftarKosPerKota.get(kotaTerpilih);
                 if (daftarKos.isEmpty()) {
@@ -144,6 +158,14 @@ public class MainApp {
                 }
         }
 
+        /**
+         * Menambahkan kos baru ke daftar kos yang tersedia di kota yang
+         * dipilih.
+         * 
+         * @param kotaTerpilih Nama kota yang dipilih pengguna
+         * @param scanner      Scanner yang digunakan untuk menerima input dari
+         *                     pengguna
+         */
         public static void tambahKos(String kotaTerpilih, Scanner scanner) {
                 System.out.println("\n╔════════════════════════════════════════════════════════════════╗");
                 System.out.printf("            ✨ Tambah Kos Baru - Kota: %s ✨              \n", kotaTerpilih);
@@ -235,8 +257,6 @@ public class MainApp {
                                 System.out.println(
                                                 "\n--------------------------------------------");
 
-                                // FUngsi remove ini untuk menghapus daftar kos yanng
-                                // telah dibooking
                                 daftarKos.remove(kosTerpilih);
                                 System.out.println(
                                                 "🙏 Terima kasih sudah menggunakan layanan kami!");
@@ -246,6 +266,17 @@ public class MainApp {
                 }
         }
 
+        /**
+         * Menampilkan daftar kos di kota yang dipilih dan meminta pengguna memilih
+         * nomor kos yang ingin dimanipulasi. Setelah itu, program ini akan meminta
+         * input jumlah karakter yang ingin dihapus dari belakang nama kos yang
+         * dipilih. Jika input valid, maka program ini akan menghapus karakter
+         * tersebut dan menampilkan nama kos yang sudah diubah.
+         *
+         * @param scanner      Scanner yang digunakan untuk menerima input dari
+         *                     pengguna.
+         * @param kotaTerpilih Nama kota yang dipilih oleh pengguna.
+         */
         public static void manipulasiSubstring(Scanner scanner, String kotaTerpilih) {
                 List<Kos> daftarKos = daftarKosPerKota.get(kotaTerpilih);
 
@@ -291,6 +322,17 @@ public class MainApp {
                 System.out.println("\n✨ Data kos berhasil diperbarui!");
         }
 
+        /**
+         * Mencari kos yang namanya mengandung substring yang diinput pengguna.
+         * Program ini akan menampilkan daftar kos di kota yang dipilih, lalu
+         * meminta pengguna untuk menginput nama atau sebagian nama kos yang
+         * diinginkan. Program kemudian akan menampilkan semua kos yang namanya
+         * mengandung input tersebut.
+         *
+         * @param scanner      Scanner yang digunakan untuk menerima input dari
+         *                     pengguna.
+         * @param kotaTerpilih Nama kota yang dipilih oleh pengguna.
+         */
         public static void manipulasiContains(Scanner scanner, String kotaTerpilih) {
                 List<Kos> daftarKos = daftarKosPerKota.get(kotaTerpilih);
 
@@ -325,6 +367,15 @@ public class MainApp {
                 }
         }
 
+        /**
+         * Menampilkan menu untuk mengubah nama kos menjadi Lowercase atau Uppercase.
+         * 
+         * @param scanner      Scanner yang digunakan untuk menerima input dari
+         *                     pengguna.
+         * @param kotaTerpilih Nama kota yang dipilih oleh pengguna.
+         * @param toLowerCase  true jika ingin mengubah ke Lowercase, false jika ingin
+         *                     mengubah ke Uppercase.
+         */
         public static void manipulasiLoworUp(Scanner scanner, String kotaTerpilih, boolean toLowerCase) {
                 List<Kos> daftarKos = daftarKosPerKota.get(kotaTerpilih);
 
@@ -372,6 +423,19 @@ public class MainApp {
                 System.out.println("╚════════════════════════════════════════════════════════╝");
         }
 
+        /**
+         * Manipulasi nama kos dengan mengganti substring yang sesuai dengan input
+         * pengguna. Program ini akan menampilkan daftar kos di kota yang dipilih,
+         * lalu meminta pengguna untuk memilih nomor kos yang ingin diubah. Setelah
+         * itu, program ini akan meminta input substring yang ingin diganti dan
+         * penggantiannya. Jika bagian nama kos yang dimaksud ditemukan, maka
+         * program ini akan mengganti bagian tersebut dengan penggantiannya dan
+         * menampilkan hasilnya.
+         *
+         * @param scanner      Scanner yang digunakan untuk menerima input dari
+         *                     pengguna.
+         * @param kotaTerpilih Nama kota yang dipilih oleh pengguna.
+         */
         public static void manipulasiReplace(Scanner scanner, String kotaTerpilih) {
                 List<Kos> daftarKos = daftarKosPerKota.get(kotaTerpilih);
 
@@ -426,6 +490,17 @@ public class MainApp {
                 }
         }
 
+        /**
+         * Menampilkan jumlah karakter dalam nama kos di kota yang dipilih.
+         * Program ini akan menampilkan daftar kos yang ada di kota yang dipilih,
+         * lalu meminta pengguna untuk memilih nomor kos yang ingin dihitung jumlah
+         * karakternya. Setelah itu, program ini akan menghitung jumlah karakter nama
+         * kos yang dipilih dan menampilkan hasilnya.
+         *
+         * @param scanner      Scanner yang digunakan untuk menerima input dari
+         *                     pengguna.
+         * @param kotaTerpilih Nama kota yang dipilih oleh pengguna.
+         */
         public static void manipulasiLength(Scanner scanner, String kotaTerpilih) {
                 List<Kos> daftarKos = daftarKosPerKota.get(kotaTerpilih);
 
@@ -491,6 +566,9 @@ public class MainApp {
         // return kursIndonesia.format(harga);
         // }
 
+        /**
+         * Menampilkan header dengan border dan kembali ke menu kota.
+         */
         static void KembaliMenuKota() {
                 // Menampilkan header dengan border
                 System.out.println("╔════════════════════════════════════════════════════════╗");
@@ -498,6 +576,14 @@ public class MainApp {
                 System.out.println("╚════════════════════════════════════════════════════════╝");
         }
 
+        /**
+         * Mengembalikan string yang terformat sebagai nilai mata uang rupiah.
+         * 
+         * Contoh: 1000000.5 -> "Rp. 1.000.000,50"
+         * 
+         * @param harga nilai yang ingin di-format
+         * @return string yang sudah terformat
+         */
         public static String formatRupiah(double harga) {
                 String currency = "Rp.";
                 DecimalFormatSymbols symbols = new DecimalFormatSymbols();
@@ -509,6 +595,16 @@ public class MainApp {
 
         }
 
+        /**
+         * Poin masuk program.
+         * 
+         * Program akan menampilkan menu kota dan setelah memilih kota akan menampilkan
+         * menu utama. Setelah memilih menu utama maka program akan menampilkan hasil
+         * yang sesuai dengan pilihan menu. Setelah selesai maka program akan kembali ke
+         * menu kota.
+         * 
+         * Jika pilihan menu kota adalah 0 maka program akan berhenti.
+         */
         public static void main(String[] args) {
                 Scanner scanner = new Scanner(System.in);
                 inisialisasiData();
