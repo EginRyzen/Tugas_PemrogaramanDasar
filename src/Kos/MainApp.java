@@ -1,7 +1,9 @@
 package Kos;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
 import java.text.DecimalFormat;
@@ -175,10 +177,18 @@ public class MainApp {
                 System.out.print("🏠 Masukkan Nama Kos: ");
                 String nama = scanner.nextLine();
 
-                // Input harga kos
-                System.out.print("💰 Masukkan Harga Kos: ");
-                Double harga = scanner.nextDouble();
-                scanner.nextLine();
+                // Input harga kos dengan validasi
+                Double harga = null;
+                while (harga == null) {
+                        try {
+                                System.out.print("💰 Masukkan Harga Kos: ");
+                                harga = scanner.nextDouble(); // Mencoba membaca input harga
+                                scanner.nextLine(); // Bersihkan buffer
+                        } catch (Exception e) {
+                                System.out.println("❌ Input tidak valid. Harap masukkan harga yang sesuai.");
+                                scanner.nextLine(); // Bersihkan buffer untuk menghindari infinite loop
+                        }
+                }
 
                 // Input fasilitas kos
                 List<String> fasilitas = new ArrayList<>();
@@ -211,59 +221,89 @@ public class MainApp {
 
         public static void bookingKos(String kotaTerpilih, Scanner scanner) {
                 List<Kos> daftarKos = daftarKosPerKota.get(kotaTerpilih);
-                System.out.println(
-                                "\n╔══════════════════════════════════════════════════════╗");
-                System.out.println("                📋 Booking Kos di " + kotaTerpilih
-                                + "               ");
-                System.out.println(
-                                "╚══════════════════════════════════════════════════════╝");
+
+                // Daftar kode promo yang valid
+                String[] kodePromoValid = { "DISKON20", "PROMO2024", "HEMATKOS" };
+
+                System.out.println("\n╔══════════════════════════════════════════════════════╗");
+                System.out.println("                📋 Booking Kos di " + kotaTerpilih + "               ");
+                System.out.println("╚══════════════════════════════════════════════════════╝");
 
                 if (daftarKos.isEmpty()) {
-                        System.out.println("⚠️  Belum ada kos yang bisa dibooking di "
-                                        + kotaTerpilih + ".");
+                        System.out.println("⚠️  Belum ada kos yang bisa dibooking di " + kotaTerpilih + ".");
                 } else {
                         System.out.println("\nPilih kos yang ingin Anda booking:");
 
                         // Menampilkan daftar kos
                         for (int i = 0; i < daftarKos.size(); i++) {
-                                System.out.printf(" %2d. %s\n", (i + 1),
-                                                daftarKos.get(i).nama);
+                                System.out.printf(" %2d. %s\n", (i + 1), daftarKos.get(i).nama);
                         }
 
-                        System.out.print("\nMasukkan nomor kos yang ingin dibooking: ");
-                        int pilihanKos = scanner.nextInt();
-                        scanner.nextLine();
-
-                        // Validasi pilihan kos
-                        if (pilihanKos < 1 || pilihanKos > daftarKos.size()) {
-                                System.out.println("❌ Pilihan tidak valid.");
-                        } else {
-                                Kos kosTerpilih = daftarKos.get(pilihanKos - 1);
-                                System.out.println(
-                                                "\n✅ Anda berhasil membooking kos berikut:");
-
-                                System.out.println(
-                                                "\n╔════════════════════════════════════════════╗");
-                                System.out.println(
-                                                "║             Detail Kos yang Dipesan        ║");
-                                System.out.println(
-                                                "╚════════════════════════════════════════════╝");
-                                System.out.printf("📌 Nama Kos     : %s\n",
-                                                kosTerpilih.nama);
-                                System.out.printf("💲 Harga Kos    : %s\n ", formatRupiah(kosTerpilih.harga));
-                                System.out.print("🔹 Fasilitas    : ");
-                                System.out.println(String.join(", ",
-                                                kosTerpilih.fasilitas));
-                                System.out.println(
-                                                "\n--------------------------------------------");
-
-                                daftarKos.remove(kosTerpilih);
-                                System.out.println(
-                                                "🙏 Terima kasih sudah menggunakan layanan kami!");
-                                System.out.println(
-                                                "   Semoga Anda mendapatkan kos yang sesuai.");
+                        int pilihanKos = -1; // Inisialisasi dengan nilai tidak valid
+                        while (true) {
+                                try {
+                                        System.out.print("\nMasukkan nomor kos yang ingin dibooking: ");
+                                        pilihanKos = scanner.nextInt(); // Mencoba membaca input angka
+                                        scanner.nextLine();
+                                        // Validasi pilihan kos
+                                        if (pilihanKos < 1 || pilihanKos > daftarKos.size()) {
+                                                System.out.println(
+                                                                "❌ Pilihan tidak valid. Masukkan nomor yang sesuai dengan daftar.");
+                                        } else {
+                                                break; // Keluar dari loop jika input valid
+                                        }
+                                } catch (Exception e) {
+                                        System.out.println("❌ Input tidak valid. Harap masukkan angka.");
+                                        scanner.nextLine(); // Bersihkan buffer untuk menghindari infinite loop
+                                }
                         }
+
+                        // Booking kos setelah validasi
+                        Kos kosTerpilih = daftarKos.get(pilihanKos - 1);
+
+                        // Tanya pengguna apakah ada kode promo
+                        System.out.print("\nApakah Anda memiliki kode promo? (y/n): ");
+                        String memilikiKodePromo = scanner.nextLine().trim().toLowerCase();
+
+                        double hargaSetelahDiskon = kosTerpilih.harga;
+
+                        if (memilikiKodePromo.equals("y")) {
+                                System.out.print("Masukkan kode promo: ");
+                                String kodePromo = scanner.nextLine().trim();
+
+                                // Periksa apakah kode promo valid
+                                boolean isValidKodePromo = Arrays.asList(kodePromoValid).contains(kodePromo);
+
+                                // Penggunaan operator ternary
+                                hargaSetelahDiskon = isValidKodePromo ? hitungDiskon(hargaSetelahDiskon, 20)
+                                                : hargaSetelahDiskon;
+                                System.out.println(isValidKodePromo
+                                                ? "✅ Kode promo berhasil digunakan! Anda mendapatkan diskon 20%."
+                                                : "❌ Kode promo tidak valid. Lanjutkan tanpa diskon.");
+
+                        }
+
+                        System.out.println("\n✅ Anda berhasil membooking kos berikut:");
+                        System.out.println("\n╔════════════════════════════════════════════╗");
+                        System.out.println("║             Detail Kos yang Dipesan        ║");
+                        System.out.println("╚════════════════════════════════════════════╝");
+                        System.out.printf("📌 Nama Kos     : %s\n", kosTerpilih.nama);
+                        System.out.printf("💲 Harga Kos    : %s\n", formatRupiah(hargaSetelahDiskon));
+                        System.out.print("🔹 Fasilitas    : ");
+                        System.out.println(String.join(", ", kosTerpilih.fasilitas));
+                        System.out.println("\n--------------------------------------------");
+
+                        // Menghapus kos dari daftar setelah dibooking
+                        daftarKos.remove(kosTerpilih);
+                        System.out.println("🙏 Terima kasih sudah menggunakan layanan kami!");
+                        System.out.println("   Semoga Anda mendapatkan kos yang sesuai.");
                 }
+        }
+
+        public static double hitungDiskon(double harga, double diskonPersen) {
+                double diskon = harga * (diskonPersen / 100); // Menggunakan operator aritmatika
+                harga -= diskon; // Menggunakan operator penugasan
+                return harga;
         }
 
         /**
@@ -291,24 +331,42 @@ public class MainApp {
                 for (int i = 0; i < daftarKos.size(); i++) {
                         System.out.printf(" %d. 🏠 %s\n", (i + 1), daftarKos.get(i).nama);
                 }
-                System.out.print("\n👉 Pilih nomor kos: ");
-                int pilihan = scanner.nextInt();
-                scanner.nextLine();
 
-                if (pilihan < 1 || pilihan > daftarKos.size()) {
-                        System.out.println("⚠️ Pilihan tidak valid.");
-                        return;
+                int pilihan = -1;
+                while (true) {
+                        try {
+                                System.out.print("\n👉 Pilih nomor kos: ");
+                                pilihan = scanner.nextInt();
+                                scanner.nextLine(); // Membersihkan buffer
+                                if (pilihan < 1 || pilihan > daftarKos.size()) {
+                                        System.out.println("⚠️ Pilihan tidak valid. Silakan coba lagi.");
+                                } else {
+                                        break; // Keluar dari loop jika input valid
+                                }
+                        } catch (InputMismatchException e) {
+                                System.out.println("⚠️ Input harus berupa angka. Silakan coba lagi.");
+                                scanner.nextLine(); // Membersihkan buffer
+                        }
                 }
 
                 Kos kosTerpilih = daftarKos.get(pilihan - 1);
 
-                System.out.print("\n✍️ Masukkan jumlah karakter yang akan dihapus dari belakang: ");
-                int jumlahKarakter = scanner.nextInt();
-                scanner.nextLine();
-
-                if (jumlahKarakter >= kosTerpilih.nama.length()) {
-                        System.out.println("⚠️ Jumlah karakter yang akan dihapus terlalu banyak!");
-                        return;
+                int jumlahKarakter = -1;
+                while (true) {
+                        try {
+                                System.out.print("\n✍️ Masukkan jumlah karakter yang akan dihapus dari belakang: ");
+                                jumlahKarakter = scanner.nextInt();
+                                scanner.nextLine(); // Membersihkan buffer
+                                if (jumlahKarakter >= kosTerpilih.nama.length()) {
+                                        System.out.println(
+                                                        "⚠️ Jumlah karakter yang akan dihapus terlalu banyak! Silakan coba lagi.");
+                                } else {
+                                        break; // Keluar dari loop jika input valid
+                                }
+                        } catch (InputMismatchException e) {
+                                System.out.println("⚠️ Input harus berupa angka. Silakan coba lagi.");
+                                scanner.nextLine(); // Membersihkan buffer
+                        }
                 }
 
                 // Memanipulasi nama kos
@@ -397,14 +455,24 @@ public class MainApp {
                 }
                 System.out.println("╚════════════════════════════════════════════════════════╝");
 
-                System.out.print("\n✍️ Pilih nomor kos: ");
-                int pilihan = scanner.nextInt();
-                scanner.nextLine();
+                int pilihan = -1;
 
-                // Validasi pilihan
-                if (pilihan < 1 || pilihan > daftarKos.size()) {
-                        System.out.println("🚫 Pilihan tidak valid.");
-                        return;
+                while (true) {
+                        try {
+                                System.out.print("\n✍️ Pilih nomor kos: ");
+                                pilihan = scanner.nextInt();
+                                scanner.nextLine(); // Membersihkan buffer
+
+                                // Jika pilihan di luar rentang valid, kembali ke menu utama
+                                if (pilihan < 1 || pilihan > daftarKos.size()) {
+                                        System.out.println("🚫 Pilihan tidak valid. Kembali ke menu utama.");
+                                        return;
+                                }
+                                break; // Keluar dari loop jika input valid
+                        } catch (InputMismatchException e) {
+                                System.out.println("⚠️ Input harus berupa angka. Silakan coba lagi.");
+                                scanner.nextLine(); // Membersihkan buffer
+                        }
                 }
 
                 Kos kosTerpilih = daftarKos.get(pilihan - 1);
@@ -457,15 +525,24 @@ public class MainApp {
                 }
                 System.out.println("╚════════════════════════════════════════════════════════╝");
 
-                // Memilih kos
-                System.out.print("\n✍️ Pilih nomor kos yang ingin diubah: ");
-                int pilihan = scanner.nextInt();
-                scanner.nextLine();
+                int pilihan = -1;
 
-                // Validasi pilihan
-                if (pilihan < 1 || pilihan > daftarKos.size()) {
-                        System.out.println("🚫 Pilihan tidak valid.");
-                        return;
+                // Loop untuk validasi input
+                while (true) {
+                        try {
+                                System.out.print("\n✍️ Pilih nomor kos yang ingin diubah: ");
+                                pilihan = scanner.nextInt();
+                                scanner.nextLine(); // Membersihkan buffer
+
+                                if (pilihan < 1 || pilihan > daftarKos.size()) {
+                                        System.out.println("🚫 Pilihan tidak valid. Kembali ke menu utama.");
+                                        return;
+                                }
+                                break; // Keluar dari loop jika input valid
+                        } catch (InputMismatchException e) {
+                                System.out.println("⚠️ Input harus berupa angka. Silakan coba lagi.");
+                                scanner.nextLine(); // Membersihkan buffer
+                        }
                 }
 
                 Kos kosTerpilih = daftarKos.get(pilihan - 1);
@@ -487,6 +564,7 @@ public class MainApp {
                         System.out.println("╚════════════════════════════════════════════════════════╝");
                 } else {
                         System.out.println("❌ Bagian nama kos yang dimaksud tidak ditemukan.");
+                        System.out.println("Kembali ke menu utama.");
                 }
         }
 
@@ -521,16 +599,25 @@ public class MainApp {
                         System.out.printf("║ %2d. %-50s ║\n", (i + 1), daftarKos.get(i).nama);
                 }
                 System.out.println("╚════════════════════════════════════════════════════════╝");
-                // Memilih kos
 
-                System.out.print("\n✍️ Pilih nomor kos yang ingin dihitung jumlah karakternya: ");
-                int pilihan = scanner.nextInt();
-                scanner.nextLine();
+                int pilihan = -1;
 
-                // Validasi pilihan
-                if (pilihan < 1 || pilihan > daftarKos.size()) {
-                        System.out.println("🚫 Pilihan tidak valid.");
-                        return;
+                // Loop untuk validasi input
+                while (true) {
+                        try {
+                                System.out.print("\n✍️ Pilih nomor kos yang ingin dihitung jumlah karakternya: ");
+                                pilihan = scanner.nextInt();
+                                scanner.nextLine(); // Membersihkan buffer
+
+                                if (pilihan < 1 || pilihan > daftarKos.size()) {
+                                        System.out.println("🚫 Pilihan tidak valid. Kembali ke menu utama.");
+                                        return;
+                                }
+                                break; // Keluar dari loop jika input valid
+                        } catch (InputMismatchException e) {
+                                System.out.println("⚠️ Input harus berupa angka. Silakan coba lagi.");
+                                scanner.nextLine(); // Membersihkan buffer
+                        }
                 }
 
                 Kos kosTerpilih = daftarKos.get(pilihan - 1);
@@ -548,23 +635,6 @@ public class MainApp {
                 System.out.printf("║ 🔢 Jumlah karakter: %-34d ║\n", panjangNamaKos);
                 System.out.println("╚════════════════════════════════════════════════════════╝");
         }
-
-        // public static String formatRupiah(double harga) {
-        // // Membuat instance DecimalFormat
-        // DecimalFormat kursIndonesia = (DecimalFormat)
-        // DecimalFormat.getCurrencyInstance();
-        // DecimalFormatSymbols formatRp = new DecimalFormatSymbols();
-
-        // formatRp.setCurrencySymbol("Rp. ");
-        // formatRp.setMonetaryDecimalSeparator(',');
-        // formatRp.setGroupingSeparator('!');
-
-        // // Mengatur simbol dan pemisah dalam format
-        // kursIndonesia.setDecimalFormatSymbols(formatRp);
-
-        // // Mengembalikan string yang terformat
-        // return kursIndonesia.format(harga);
-        // }
 
         /**
          * Menampilkan header dengan border dan kembali ke menu kota.
@@ -595,6 +665,81 @@ public class MainApp {
 
         }
 
+        // Ini function untuk menuUtama
+        private static boolean menuUtama(Scanner scanner, String kotaTerpilih) {
+                while (true) {
+                        tampilkanMenuUtama(kotaTerpilih);
+                        int pilihanMenu = bacaPilihan(scanner, "Masukkan nomor menu: ");
+
+                        if (pilihanMenu == 10) {
+                                KembaliMenuKota();
+                                return true;
+                        }
+
+                        prosesPilihanMenu(scanner, kotaTerpilih, pilihanMenu);
+                }
+        }
+
+        private static int bacaPilihan(Scanner scanner, String prompt) {
+                while (true) {
+                        try {
+                                System.out.print(prompt);
+                                return scanner.nextInt();
+                        } catch (Exception e) {
+                                System.out.println("Input tidak valid. Harap masukkan angka.");
+                        } finally {
+                                scanner.nextLine(); // Bersihkan buffer
+                        }
+                }
+        }
+
+        private static void prosesPilihanMenu(Scanner scanner, String kotaTerpilih, int pilihanMenu) {
+                switch (pilihanMenu) {
+                        case 1 -> tampilkanDaftarKos(kotaTerpilih);
+                        case 2 -> tambahKos(kotaTerpilih, scanner);
+                        case 3 -> bookingKos(kotaTerpilih, scanner);
+                        case 4 -> manipulasiSubstring(scanner, kotaTerpilih);
+                        case 5 -> manipulasiContains(scanner, kotaTerpilih);
+                        case 6 -> manipulasiLoworUp(scanner, kotaTerpilih, true);
+                        case 7 -> manipulasiLoworUp(scanner, kotaTerpilih, false);
+                        case 8 -> manipulasiReplace(scanner, kotaTerpilih);
+                        case 9 -> manipulasiLength(scanner, kotaTerpilih);
+                        case 10 -> KembaliMenuKota();
+                        default -> System.out.println("Pilihan menu tidak valid.");
+                }
+        }
+
+        private static int pilihKota(Scanner scanner) {
+                while (true) {
+                        int pilihanKota = bacaInputAngka(scanner, "Masukkan nomor kota: ");
+
+                        if (pilihanKota == 0) {
+                                return 0; // Indikasi untuk keluar dari aplikasi
+                        }
+
+                        if (pilihanKota < 1 || pilihanKota > kotaKos.length) {
+                                System.out.println("Pilihan kota tidak valid. Silakan coba lagi.");
+                                continue;
+                        }
+
+                        return pilihanKota; // Kembalikan pilihan kota yang valid
+                }
+        }
+
+        private static int bacaInputAngka(Scanner scanner, String pesan) {
+                while (true) {
+                        try {
+                                System.out.print(pesan);
+                                int input = scanner.nextInt();
+                                scanner.nextLine(); // Membersihkan buffer
+                                return input;
+                        } catch (Exception e) {
+                                System.out.println("Input tidak valid. Harap masukkan angka.");
+                                scanner.nextLine(); // Bersihkan buffer untuk menghindari infinite loop
+                        }
+                }
+        }
+
         /**
          * Poin masuk program.
          * 
@@ -611,41 +756,24 @@ public class MainApp {
 
                 while (true) {
                         tampilkanMenuKota();
-                        int pilihanKota = scanner.nextInt();
-                        scanner.nextLine();
+                        int pilihanKota = pilihKota(scanner);
+
                         if (pilihanKota == 0) {
                                 System.out.println("Terima kasih telah menggunakan aplikasi.");
                                 break;
                         }
-                        if (pilihanKota < 1 || pilihanKota > kotaKos.length) {
-                                System.out.println("Pilihan kota tidak valid.");
-                                continue;
-                        }
+
                         String kotaTerpilih = kotaKos[pilihanKota - 1];
 
-                        while (true) {
-                                tampilkanMenuUtama(kotaTerpilih);
-                                int pilihanMenu = scanner.nextInt();
-                                scanner.nextLine();
+                        boolean kembaliKeMenuKota = menuUtama(scanner, kotaTerpilih);
 
-                                switch (pilihanMenu) {
-                                        case 1 -> tampilkanDaftarKos(kotaTerpilih);
-                                        case 2 -> tambahKos(kotaTerpilih, scanner);
-                                        case 3 -> bookingKos(kotaTerpilih, scanner);
-                                        case 4 -> manipulasiSubstring(scanner, kotaTerpilih);
-                                        case 5 -> manipulasiContains(scanner, kotaTerpilih);
-                                        case 6 -> manipulasiLoworUp(scanner, kotaTerpilih, true);
-                                        case 7 -> manipulasiLoworUp(scanner, kotaTerpilih, false);
-                                        case 8 -> manipulasiReplace(scanner, kotaTerpilih);
-                                        case 9 -> manipulasiLength(scanner, kotaTerpilih);
-                                        case 10 -> KembaliMenuKota();
-                                        default -> System.out.println("Pilihan menu tidak valid.");
-                                }
-                                if (pilihanMenu == 10)
-                                        break;
+                        if (kembaliKeMenuKota) {
+                                // Jika pengguna memilih untuk kembali, ulangi dari menu kota
+                                continue;
                         }
+
                 }
+
                 scanner.close();
         }
-
 }

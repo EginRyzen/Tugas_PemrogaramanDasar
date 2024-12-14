@@ -1,5 +1,13 @@
 import java.util.Scanner;
 
+class player {
+
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+    }
+
+}
+
 public class Main {
     public static void main(String[] args) {
         try (Scanner input = new Scanner(System.in)) {
