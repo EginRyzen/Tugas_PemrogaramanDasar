@@ -12,6 +12,16 @@ import java.text.DecimalFormatSymbols;
 public class MainApp {
         private static HashMap<String, List<Kos>> daftarKosPerKota = new HashMap<>();
         private static String[] kotaKos = { "Surabaya", "Jakarta", "Bandung", "Yogyakarta", "Malang", "Bali" };
+        private static String[][] dataKelompok = {
+                        { "Egin Sefiano Widodo", "24111814009" },
+                        { "Izaz Tsany Rismawan", "24111814088" },
+                        { "Keisa Aushafa Dzihni", "24111814109" },
+                        { "M. Reyhan Sheva R.Q", "24111814124" },
+                        { "Izha Valensy", "24111814125" },
+                        { "Ismail ali Mukharom", "24118144130" },
+                        { "Fearda Agnessiya Putri Dardiri", "24111814138" },
+                        { "Naila Nurul Faizah", "24111814144" },
+        };
 
         static class Kos {
                 String nama;
@@ -94,6 +104,10 @@ public class MainApp {
                 System.out.println("║       Di Aplikasi Layanan Kos Kami 🏠          ║");
                 System.out.println("╚════════════════════════════════════════════════╝");
 
+                for (int i = 0; i < dataKelompok.length; i++) {
+                        System.out.printf("🔹 Nama: %-30s | NIM: %s%n", dataKelompok[i][0], dataKelompok[i][1]);
+                }
+
                 // Subjudul
                 System.out.println("\n📜 Daftar Kota yang Tersedia:");
 
@@ -104,6 +118,15 @@ public class MainApp {
                 System.out.println("-------------------------------------------");
                 System.out.print("👉 Pilih nomor kota (0 untuk keluar): ");
 
+        }
+
+        public static void tampilAkhir() {
+                System.out.println("╔════════════════════════════════════════════╗");
+                System.out.println("║          🙏 TERIMA KASIH 🙏                ║");
+                System.out.println("║     Telah Menggunakan Aplikasi Kami        ║");
+                System.out.println("╠════════════════════════════════════════════╣");
+                System.out.println("║         Created by: Kelompok 1             ║");
+                System.out.println("╚════════════════════════════════════════════╝");
         }
 
         /**
@@ -754,24 +777,69 @@ public class MainApp {
                 Scanner scanner = new Scanner(System.in);
                 inisialisasiData();
 
-                while (true) {
-                        tampilkanMenuKota();
-                        int pilihanKota = pilihKota(scanner);
+                String[][] dataUser = {
+                                { "user", "Reyhan", "12345" },
+                                { "admin", "Keisa", "12345" },
+                };
 
-                        if (pilihanKota == 0) {
-                                System.out.println("Terima kasih telah menggunakan aplikasi.");
-                                break;
+                String role = "";
+                String nama = "";
+                boolean isLoggedIn = false;
+
+                while (!isLoggedIn) {
+                        System.out.println("\n╔══════════════════════════════════════════════╗");
+                        System.out.println("║                 LOGIN APLIKASI               ║");
+                        System.out.println("╚══════════════════════════════════════════════╝");
+
+                        System.out.print("🔑 Masukkan Username: ");
+                        String username = scanner.nextLine();
+
+                        System.out.print("🔒 Masukkan Password: ");
+                        String password = scanner.nextLine();
+
+                        for (String[] user : dataUser) {
+                                if (user[0].equals(username) && user[2].equals(password)) {
+                                        isLoggedIn = true;
+                                        role = username.equals("admin") ? "admin" : "user";
+                                        nama = user[1];
+                                        break;
+                                }
                         }
 
-                        String kotaTerpilih = kotaKos[pilihanKota - 1];
-
-                        boolean kembaliKeMenuKota = menuUtama(scanner, kotaTerpilih);
-
-                        if (kembaliKeMenuKota) {
-                                // Jika pengguna memilih untuk kembali, ulangi dari menu kota
-                                continue;
+                        if (!isLoggedIn) {
+                                System.out.println("\n❌ Username atau password salah. Silakan coba lagi.");
                         }
+                }
 
+                if (isLoggedIn) {
+                        switch (role) {
+                                case "admin":
+                                        while (true) {
+                                                tampilkanMenuKota();
+                                                int pilihanKota = pilihKota(scanner);
+
+                                                if (pilihanKota == 0) {
+                                                        tampilAkhir();
+                                                        break;
+                                                }
+
+                                                String kotaTerpilih = kotaKos[pilihanKota - 1];
+
+                                                boolean kembaliKeMenuKota = menuUtama(scanner, kotaTerpilih);
+
+                                                if (kembaliKeMenuKota) {
+                                                        // Jika pengguna memilih untuk kembali, ulangi dari menu kota
+                                                        continue;
+                                                }
+
+                                        }
+                                        break;
+                                case "user":
+                                        System.out.println("User " + nama + " telah berhasil login.");
+                                        break;
+                                default:
+                                        break;
+                        }
                 }
 
                 scanner.close();
