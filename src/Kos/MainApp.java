@@ -136,7 +136,7 @@ public class MainApp {
          * 
          * @param kotaTerpilih nama kota yang sedang dipilih pengguna
          */
-        public static void tampilkanMenuUtama(String kotaTerpilih) {
+        public static void tampilkanMenuUtamaAdmin(String kotaTerpilih) {
                 System.out.println("\n╔════════════════════════════════════════════════╗");
                 System.out.printf("       ★ Menu Utama - Kota: %s ★          \n", kotaTerpilih);
                 System.out.println("╚════════════════════════════════════════════════╝");
@@ -153,6 +153,22 @@ public class MainApp {
                 System.out.println("  8. ✏️ Manipulasi Replace");
                 System.out.println("  9. 📏 Manipulasi Length");
                 System.out.println(" 10. ⬅️ Kembali ke Menu Kota");
+
+                // Footer prompt
+                System.out.print("\n🌟 Pilih menu: ");
+
+        }
+
+        public static void tampilkanMenuUtamaUser(String kotaTerpilih) {
+                System.out.println("\n╔════════════════════════════════════════════════╗");
+                System.out.printf("       ★ Menu Utama - Kota: %s ★          \n", kotaTerpilih);
+                System.out.println("╚════════════════════════════════════════════════╝");
+
+                // Daftar menu
+                System.out.println("📋 Pilihan Menu:");
+                System.out.println("  1. 🏠 Tampilkan Kos");
+                System.out.println("  2. 📅 Booking Kos");
+                System.out.println("  3. ⬅️ Kembali ke Menu Kota");
 
                 // Footer prompt
                 System.out.print("\n🌟 Pilih menu: ");
@@ -689,17 +705,38 @@ public class MainApp {
         }
 
         // Ini function untuk menuUtama
-        private static boolean menuUtama(Scanner scanner, String kotaTerpilih) {
-                while (true) {
-                        tampilkanMenuUtama(kotaTerpilih);
-                        int pilihanMenu = bacaPilihan(scanner, "Masukkan nomor menu: ");
+        private static boolean menuUtama(Scanner scanner, String kotaTerpilih, String role, String nama) {
+                switch (role) {
+                        case "admin":
+                                while (true) {
+                                        tampilkanMenuUtamaAdmin(kotaTerpilih);
+                                        int pilihanMenu = bacaPilihan(scanner, "Masukkan nomor menu: ");
 
-                        if (pilihanMenu == 10) {
-                                KembaliMenuKota();
-                                return true;
-                        }
+                                        if (pilihanMenu == 10) { // Pilihan untuk kembali ke menu kota
+                                                System.out.println("\n🔙 Kembali ke menu kota...");
+                                                return true; // Kembali ke menu kota
+                                        }
 
-                        prosesPilihanMenu(scanner, kotaTerpilih, pilihanMenu);
+                                        prosesPilihanMenuAdmin(scanner, kotaTerpilih, pilihanMenu); // Proses pilihan
+                                                                                                    // admin
+                                }
+                        case "user":
+                                while (true) {
+                                        tampilkanMenuUtamaUser(kotaTerpilih);
+                                        int pilihanMenu = bacaPilihan(scanner, "Masukkan nomor menu: ");
+
+                                        if (pilihanMenu == 3) { // Pilihan untuk kembali ke menu kota
+                                                System.out.println("\n🔙 Kembali ke menu kota...");
+                                                return true; // Kembali ke menu kota
+                                        }
+
+                                        prosesPilihanMenuUser(scanner, kotaTerpilih, pilihanMenu); // Proses
+                                                                                                   // pilihan user
+                                }
+
+                        default:
+                                System.out.println("\n⚠️ Role tidak valid. Kembali ke menu utama.");
+                                return true; // Tetap kembali jika role tidak dikenali
                 }
         }
 
@@ -716,7 +753,7 @@ public class MainApp {
                 }
         }
 
-        private static void prosesPilihanMenu(Scanner scanner, String kotaTerpilih, int pilihanMenu) {
+        private static void prosesPilihanMenuAdmin(Scanner scanner, String kotaTerpilih, int pilihanMenu) {
                 switch (pilihanMenu) {
                         case 1 -> tampilkanDaftarKos(kotaTerpilih);
                         case 2 -> tambahKos(kotaTerpilih, scanner);
@@ -731,6 +768,32 @@ public class MainApp {
                         default -> System.out.println("Pilihan menu tidak valid.");
                 }
         }
+
+        private static void prosesPilihanMenuUser(Scanner scanner, String kotaTerpilih, int pilihanMenu) {
+                switch (pilihanMenu) {
+                        case 1 -> tampilkanDaftarKos(kotaTerpilih);
+                        case 2 -> bookingKos(kotaTerpilih, scanner);
+                        case 3 -> KembaliMenuKota();
+                        default -> System.out.println("Pilihan menu tidak valid.");
+                }
+        }
+
+        // private static void prosesPilihanMenuUser(Scanner scanner, String
+        // kotaTerpilih, int pilihanMenu) {
+        // switch (pilihanMenu) {
+        // case 1 -> tampilkanDaftarKos(kotaTerpilih);
+        // case 2 -> tambahKos(kotaTerpilih, scanner);
+        // case 3 -> bookingKos(kotaTerpilih, scanner);
+        // case 4 -> manipulasiSubstring(scanner, kotaTerpilih);
+        // case 5 -> manipulasiContains(scanner, kotaTerpilih);
+        // case 6 -> manipulasiLoworUp(scanner, kotaTerpilih, true);
+        // case 7 -> manipulasiLoworUp(scanner, kotaTerpilih, false);
+        // case 8 -> manipulasiReplace(scanner, kotaTerpilih);
+        // case 9 -> manipulasiLength(scanner, kotaTerpilih);
+        // case 10 -> KembaliMenuKota();
+        // default -> System.out.println("Pilihan menu tidak valid.");
+        // }
+        // }
 
         private static int pilihKota(Scanner scanner) {
                 while (true) {
@@ -811,37 +874,25 @@ public class MainApp {
                         }
                 }
 
-                if (isLoggedIn) {
-                        switch (role) {
-                                case "admin":
-                                        while (true) {
-                                                tampilkanMenuKota();
-                                                int pilihanKota = pilihKota(scanner);
+                while (true) {
+                        tampilkanMenuKota();
+                        int pilihanKota = pilihKota(scanner);
 
-                                                if (pilihanKota == 0) {
-                                                        tampilAkhir();
-                                                        break;
-                                                }
-
-                                                String kotaTerpilih = kotaKos[pilihanKota - 1];
-
-                                                boolean kembaliKeMenuKota = menuUtama(scanner, kotaTerpilih);
-
-                                                if (kembaliKeMenuKota) {
-                                                        // Jika pengguna memilih untuk kembali, ulangi dari menu kota
-                                                        continue;
-                                                }
-
-                                        }
-                                        break;
-                                case "user":
-                                        System.out.println("User " + nama + " telah berhasil login.");
-                                        break;
-                                default:
-                                        break;
+                        if (pilihanKota == 0) {
+                                tampilAkhir();
+                                break;
                         }
-                }
 
+                        String kotaTerpilih = kotaKos[pilihanKota - 1];
+
+                        boolean kembaliKeMenuKota = menuUtama(scanner, kotaTerpilih, role, nama);
+
+                        if (kembaliKeMenuKota) {
+                                // Jika pengguna memilih untuk kembali, ulangi dari menu kota
+                                continue;
+                        }
+
+                }
                 scanner.close();
         }
 }
