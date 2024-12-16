@@ -22,6 +22,14 @@ public class MainApp {
                         { "Fearda Agnessiya Putri Dardiri", "24111814138" },
                         { "Naila Nurul Faizah", "24111814144" },
         };
+        private static String[][] dataUser = {
+                        { "user", "Reyhan", "12345" },
+                        { "admin", "Keisa", "12345" },
+        };
+
+        private static String role = "";
+        private static String nama = "";
+        private static boolean isLoggedIn = false;
 
         static class Kos {
                 String nama;
@@ -90,6 +98,31 @@ public class MainApp {
 
                 // Panggil fungsi rekursif untuk indeks berikutnya
                 tampilkanKotaRekursif(indeks + 1);
+        }
+
+        public static void tampilkanMenuLogin(Scanner scanner) {
+                System.out.println("\n╔══════════════════════════════════════════════╗");
+                System.out.println("║                 LOGIN APLIKASI               ║");
+                System.out.println("╚══════════════════════════════════════════════╝");
+
+                System.out.print("🔑 Masukkan Username: ");
+                String username = scanner.nextLine();
+
+                System.out.print("🔒 Masukkan Password: ");
+                String password = scanner.nextLine();
+
+                for (String[] user : dataUser) {
+                        if (user[0].equals(username) && user[2].equals(password)) {
+                                isLoggedIn = true;
+                                role = username.equals("admin") ? "admin" : "user";
+                                nama = user[1];
+                                break;
+                        }
+                }
+
+                if (!isLoggedIn) {
+                        System.out.println("\n❌ Username atau password salah. Silakan coba lagi.");
+                }
         }
 
         /**
@@ -258,7 +291,7 @@ public class MainApp {
 
         }
 
-        public static void bookingKos(String kotaTerpilih, Scanner scanner) {
+        public static void bookingKos(String kotaTerpilih, Scanner scanner, String nama, String role) {
                 List<Kos> daftarKos = daftarKosPerKota.get(kotaTerpilih);
 
                 // Daftar kode promo yang valid
@@ -270,73 +303,100 @@ public class MainApp {
 
                 if (daftarKos.isEmpty()) {
                         System.out.println("⚠️  Belum ada kos yang bisa dibooking di " + kotaTerpilih + ".");
-                } else {
-                        System.out.println("\nPilih kos yang ingin Anda booking:");
-
-                        // Menampilkan daftar kos
-                        for (int i = 0; i < daftarKos.size(); i++) {
-                                System.out.printf(" %2d. %s\n", (i + 1), daftarKos.get(i).nama);
-                        }
-
-                        int pilihanKos = -1; // Inisialisasi dengan nilai tidak valid
-                        while (true) {
-                                try {
-                                        System.out.print("\nMasukkan nomor kos yang ingin dibooking: ");
-                                        pilihanKos = scanner.nextInt(); // Mencoba membaca input angka
-                                        scanner.nextLine();
-                                        // Validasi pilihan kos
-                                        if (pilihanKos < 1 || pilihanKos > daftarKos.size()) {
-                                                System.out.println(
-                                                                "❌ Pilihan tidak valid. Masukkan nomor yang sesuai dengan daftar.");
-                                        } else {
-                                                break; // Keluar dari loop jika input valid
-                                        }
-                                } catch (Exception e) {
-                                        System.out.println("❌ Input tidak valid. Harap masukkan angka.");
-                                        scanner.nextLine(); // Bersihkan buffer untuk menghindari infinite loop
-                                }
-                        }
-
-                        // Booking kos setelah validasi
-                        Kos kosTerpilih = daftarKos.get(pilihanKos - 1);
-
-                        // Tanya pengguna apakah ada kode promo
-                        System.out.print("\nApakah Anda memiliki kode promo? (y/n): ");
-                        String memilikiKodePromo = scanner.nextLine().trim().toLowerCase();
-
-                        double hargaSetelahDiskon = kosTerpilih.harga;
-
-                        if (memilikiKodePromo.equals("y")) {
-                                System.out.print("Masukkan kode promo: ");
-                                String kodePromo = scanner.nextLine().trim();
-
-                                // Periksa apakah kode promo valid
-                                boolean isValidKodePromo = Arrays.asList(kodePromoValid).contains(kodePromo);
-
-                                // Penggunaan operator ternary
-                                hargaSetelahDiskon = isValidKodePromo ? hitungDiskon(hargaSetelahDiskon, 20)
-                                                : hargaSetelahDiskon;
-                                System.out.println(isValidKodePromo
-                                                ? "✅ Kode promo berhasil digunakan! Anda mendapatkan diskon 20%."
-                                                : "❌ Kode promo tidak valid. Lanjutkan tanpa diskon.");
-
-                        }
-
-                        System.out.println("\n✅ Anda berhasil membooking kos berikut:");
-                        System.out.println("\n╔════════════════════════════════════════════╗");
-                        System.out.println("║             Detail Kos yang Dipesan        ║");
-                        System.out.println("╚════════════════════════════════════════════╝");
-                        System.out.printf("📌 Nama Kos     : %s\n", kosTerpilih.nama);
-                        System.out.printf("💲 Harga Kos    : %s\n", formatRupiah(hargaSetelahDiskon));
-                        System.out.print("🔹 Fasilitas    : ");
-                        System.out.println(String.join(", ", kosTerpilih.fasilitas));
-                        System.out.println("\n--------------------------------------------");
-
-                        // Menghapus kos dari daftar setelah dibooking
-                        daftarKos.remove(kosTerpilih);
-                        System.out.println("🙏 Terima kasih sudah menggunakan layanan kami!");
-                        System.out.println("   Semoga Anda mendapatkan kos yang sesuai.");
+                        return;
                 }
+
+                if (role == "admin") {
+                        System.out.print("👤 Masukkan nama pembooking: ");
+                        nama = scanner.nextLine().trim();
+                        if (nama.isBlank()) {
+                                System.out.println(
+                                                "❌ Nama pembooking tidak boleh kosong. Harap masukkan nama yang valid.");
+                                return;
+                        }
+                }
+
+                // Input alamat asli sesuai KTP
+                String alamatRumah = inputAlamatRumah(scanner);
+
+                System.out.println("\nPilih kos yang ingin Anda booking:");
+                // Menampilkan daftar kos
+                for (int i = 0; i < daftarKos.size(); i++) {
+                        System.out.printf(" %2d. %s\n", (i + 1), daftarKos.get(i).nama);
+                }
+
+                int pilihanKos = -1; // Inisialisasi dengan nilai tidak valid
+                while (true) {
+                        try {
+                                System.out.print("\nMasukkan nomor kos yang ingin dibooking: ");
+                                pilihanKos = scanner.nextInt(); // Mencoba membaca input angka
+                                scanner.nextLine();
+                                // Validasi pilihan kos
+                                if (pilihanKos < 1 || pilihanKos > daftarKos.size()) {
+                                        System.out.println(
+                                                        "❌ Pilihan tidak valid. Masukkan nomor yang sesuai dengan daftar.");
+                                } else {
+                                        break; // Keluar dari loop jika input valid
+                                }
+                        } catch (Exception e) {
+                                System.out.println("❌ Input tidak valid. Harap masukkan angka.");
+                                scanner.nextLine(); // Bersihkan buffer untuk menghindari infinite loop
+                        }
+                }
+
+                // Booking kos setelah validasi
+                Kos kosTerpilih = daftarKos.get(pilihanKos - 1);
+
+                // Tanya pengguna apakah ada kode promo
+                System.out.print("\nApakah Anda memiliki kode promo? (y/n): ");
+                String memilikiKodePromo = scanner.nextLine().trim().toLowerCase();
+
+                double hargaSetelahDiskon = kosTerpilih.harga;
+
+                if (memilikiKodePromo.equals("y")) {
+                        System.out.print("Masukkan kode promo: ");
+                        String kodePromo = scanner.nextLine().trim();
+
+                        // Periksa apakah kode promo valid
+                        boolean isValidKodePromo = Arrays.asList(kodePromoValid).contains(kodePromo);
+
+                        // Penggunaan operator ternary
+                        hargaSetelahDiskon = isValidKodePromo ? hitungDiskon(hargaSetelahDiskon, 20)
+                                        : hargaSetelahDiskon;
+                        System.out.println(isValidKodePromo
+                                        ? "✅ Kode promo berhasil digunakan! Anda mendapatkan diskon 20%."
+                                        : "❌ Kode promo tidak valid. Lanjutkan tanpa diskon.");
+                }
+
+                System.out.println("\n✅ Anda berhasil membooking kos berikut:");
+                System.out.println("\n╔════════════════════════════════════════════╗");
+                System.out.println("║             Detail Kos yang Dipesan        ║");
+                System.out.println("╚════════════════════════════════════════════╝");
+                System.out.printf("👤 Nama         : %s\n", nama);
+                System.out.printf("🏠 Alamat Rumah : %s\n", alamatRumah);
+                System.out.printf("📌 Nama Kos     : %s\n", kosTerpilih.nama);
+                System.out.printf("💲 Harga Kos    : %s\n", formatRupiah(hargaSetelahDiskon));
+                System.out.print("🔹 Fasilitas    : ");
+                System.out.println(String.join(", ", kosTerpilih.fasilitas));
+                System.out.println("\n--------------------------------------------");
+                // Menghapus kos dari daftar setelah dibooking
+                daftarKos.remove(kosTerpilih);
+                System.out.println("🙏 Terima kasih sudah menggunakan layanan kami!");
+                System.out.println("   Semoga Anda mendapatkan kos yang sesuai.");
+        }
+
+        private static String inputAlamatRumah(Scanner scanner) {
+                System.out.println("\nSebelum melanjutkan, masukkan alamat rumah Anda sesuai dengan KTP:");
+                String alamatRumah = "";
+                while (alamatRumah.isBlank()) {
+                        System.out.print("📝 Alamat Rumah (sesuai KTP): ");
+                        alamatRumah = scanner.nextLine().trim();
+                        if (alamatRumah.isBlank()) {
+                                System.out.println("❌ Alamat tidak boleh kosong. Harap masukkan alamat yang valid.");
+                        }
+                }
+                System.out.println("\n✅ Alamat berhasil disimpan: " + alamatRumah);
+                return alamatRumah;
         }
 
         public static double hitungDiskon(double harga, double diskonPersen) {
@@ -717,8 +777,9 @@ public class MainApp {
                                                 return true; // Kembali ke menu kota
                                         }
 
-                                        prosesPilihanMenuAdmin(scanner, kotaTerpilih, pilihanMenu); // Proses pilihan
-                                                                                                    // admin
+                                        prosesPilihanMenuAdmin(scanner, kotaTerpilih, pilihanMenu, nama, role); // Proses
+                                                                                                                // pilihan
+                                                                                                                // admin
                                 }
                         case "user":
                                 while (true) {
@@ -730,8 +791,9 @@ public class MainApp {
                                                 return true; // Kembali ke menu kota
                                         }
 
-                                        prosesPilihanMenuUser(scanner, kotaTerpilih, pilihanMenu); // Proses
-                                                                                                   // pilihan user
+                                        prosesPilihanMenuUser(scanner, kotaTerpilih, pilihanMenu, nama, role); // Proses
+                                                                                                               // pilihan
+                                                                                                               // user
                                 }
 
                         default:
@@ -753,11 +815,12 @@ public class MainApp {
                 }
         }
 
-        private static void prosesPilihanMenuAdmin(Scanner scanner, String kotaTerpilih, int pilihanMenu) {
+        private static void prosesPilihanMenuAdmin(Scanner scanner, String kotaTerpilih, int pilihanMenu, String nama,
+                        String role) {
                 switch (pilihanMenu) {
                         case 1 -> tampilkanDaftarKos(kotaTerpilih);
                         case 2 -> tambahKos(kotaTerpilih, scanner);
-                        case 3 -> bookingKos(kotaTerpilih, scanner);
+                        case 3 -> bookingKos(kotaTerpilih, scanner, nama, role);
                         case 4 -> manipulasiSubstring(scanner, kotaTerpilih);
                         case 5 -> manipulasiContains(scanner, kotaTerpilih);
                         case 6 -> manipulasiLoworUp(scanner, kotaTerpilih, true);
@@ -769,10 +832,11 @@ public class MainApp {
                 }
         }
 
-        private static void prosesPilihanMenuUser(Scanner scanner, String kotaTerpilih, int pilihanMenu) {
+        private static void prosesPilihanMenuUser(Scanner scanner, String kotaTerpilih, int pilihanMenu, String nama,
+                        String role) {
                 switch (pilihanMenu) {
                         case 1 -> tampilkanDaftarKos(kotaTerpilih);
-                        case 2 -> bookingKos(kotaTerpilih, scanner);
+                        case 2 -> bookingKos(kotaTerpilih, scanner, nama, role);
                         case 3 -> KembaliMenuKota();
                         default -> System.out.println("Pilihan menu tidak valid.");
                 }
@@ -840,38 +904,8 @@ public class MainApp {
                 Scanner scanner = new Scanner(System.in);
                 inisialisasiData();
 
-                String[][] dataUser = {
-                                { "user", "Reyhan", "12345" },
-                                { "admin", "Keisa", "12345" },
-                };
-
-                String role = "";
-                String nama = "";
-                boolean isLoggedIn = false;
-
                 while (!isLoggedIn) {
-                        System.out.println("\n╔══════════════════════════════════════════════╗");
-                        System.out.println("║                 LOGIN APLIKASI               ║");
-                        System.out.println("╚══════════════════════════════════════════════╝");
-
-                        System.out.print("🔑 Masukkan Username: ");
-                        String username = scanner.nextLine();
-
-                        System.out.print("🔒 Masukkan Password: ");
-                        String password = scanner.nextLine();
-
-                        for (String[] user : dataUser) {
-                                if (user[0].equals(username) && user[2].equals(password)) {
-                                        isLoggedIn = true;
-                                        role = username.equals("admin") ? "admin" : "user";
-                                        nama = user[1];
-                                        break;
-                                }
-                        }
-
-                        if (!isLoggedIn) {
-                                System.out.println("\n❌ Username atau password salah. Silakan coba lagi.");
-                        }
+                        tampilkanMenuLogin(scanner);
                 }
 
                 while (true) {
